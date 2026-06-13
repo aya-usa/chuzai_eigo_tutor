@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>子どもの読み書き習得、どんな流れで進むの？</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #faf8f5;
+    color: #2c2c2a;
+    padding: 48px 24px;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e8e4dc;
+  }
+
+  .steps { display: flex; flex-direction: column; gap: 0; }
+
+  .step { display: flex; gap: 16px; position: relative; padding-bottom: 2rem; }
+
+  .step:last-child { padding-bottom: 0; }
+
+  .step-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .step-line {
+    width: 1px;
+    flex: 1;
+    margin-top: 6px;
+    background: #e8e4dc;
+  }
+
+  .step:last-child .step-line { display: none; }
+
+  .step-body { flex: 1; padding-top: 4px; }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 20px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: #5f5e5a;
+    line-height: 1.8;
+  }
+
+  .step-desc br { display: block; margin-top: 0.5em; content: ""; }
+
+  .highlight { font-weight: 700; color: #2c2c2a; }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e8e4dc;
+    margin: 2rem 0 1.25rem;
+  }
+
+  .footer-note {
+    font-size: 12px;
+    color: #888780;
+    line-height: 1.8;
+  }
+
+  /* Step colors */
+  .s1-num { background: #E1F5EE; color: #085041; }
+  .s1-badge { background: #E1F5EE; color: #085041; }
+  .s2-num { background: #EEEDFE; color: #3C3489; }
+  .s3-num { background: #FAEEDA; color: #633806; }
+  .s4-num { background: #E6F1FB; color: #0C447C; }
+  .s5-num { background: #FAECE7; color: #712B13; }
+</style>
+</head>
+<body>
+
+<style>
+  #pw-overlay {
+    position: fixed; inset: 0;
+    background: #faf8f5;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  #pw-box {
+    background: #fff;
+    border: 1px solid #e8e4dc;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+  }
+  #pw-box h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+  }
+  #pw-box p {
+    font-size: 12px;
+    color: #888780;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  #pw-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #e8e4dc;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-bottom: 12px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  #pw-input:focus { border-color: #c4714a; }
+  #pw-btn {
+    width: 100%;
+    background: #c4714a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
+  #pw-error {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 10px;
+    display: none;
+  }
+</style>
+
+<div id="pw-overlay">
+  <div id="pw-box">
+    <h2>🔒 資料を見るには</h2>
+    <p>パスワードを入力してください</p>
+    <input type="password" id="pw-input" placeholder="パスワード" onkeydown="if(event.key==='Enter')verify()">
+    <button id="pw-btn" onclick="verify()">確認する</button>
+    <p id="pw-error">パスワードが違います</p>
+  </div>
+</div>
+
+<script>
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function verify() {
+  const val = document.getElementById('pw-input').value;
+  const hash = await sha256(val);
+  if (hash === '54f63b2a758ff8ebd46256c7d50120274ab51f24cc3a950143d7aa5638117d95') {
+    document.getElementById('pw-overlay').style.display = 'none';
+    sessionStorage.setItem('auth', '1');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+if (sessionStorage.getItem('auth') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('pw-overlay');
+    if (el) el.style.display = 'none';
+  });
+}
+</script>
+
+
+<h1>子どもの読み書き習得、どんな流れで進むの？</h1>
+
+<p style="font-size: 13px; color: #5f5e5a; line-height: 1.9; margin-bottom: 10px;">私のレッスンでは、英語で話す自信をつけながら、帰国後も英語が残るよう読み書きまで丁寧にサポートします。</p>
+<p style="font-size: 13px; color: #5f5e5a; line-height: 1.9; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e8e4dc;">お子さんそれぞれの適切なタイミングで以下のステップをレッスンで追っていくと同時に、ご家庭での取り組みを習慣化するお手伝いをします。（宿題や絵本の選書など）</p>
+
+<div class="steps">
+
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num s1-num">1</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <p class="step-title">
+        まず「音」をたくさん聞く
+        <span class="badge s1-badge">駐在キッズはここが強み</span>
+      </p>
+      <p class="step-desc">英語を習得する最初のステップは、英語の音やリズムに慣れることです。海外生活をしているお子さんは、毎日の生活の中でこの「聞く力」が自然と育っています。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num s2-num">2</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <p class="step-title">習慣としておうちで絵本をたくさん読む</p>
+      <p class="step-desc">絵本のイラストが助けになり、同じ本を繰り返し読んでいくうちに、内容を英語のまま理解することができるようになります。一文一文の翻訳は必要ありません。ページの中に流れているストーリーを把握できればそれでOKです。<br>さらに続けることで、よく聞く単語の「音」と「文字」が徐々にふんわりとつながってきます。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num s3-num">3</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <p class="step-title">フォニックスで「音と文字」をつなげる</p>
+      <p class="step-desc">文字に興味が出てきたタイミングで、フォニックスをはじめます。フォニックスとは、英語の文字と音のルールを学ぶ学習法です。<br>まずは短い音（a＝「ア」、t＝「トゥッ」など）を覚えながら、<span class="highlight">CAT・SAT・MAT</span> のようなシンプルな単語を読む練習をします。同時に、やさしいリーダーズ絵本（英語の文字読みを習得するように作られた読み物）も読みはじめます。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num s4-num">4</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <p class="step-title">読み続けることで、英語が英語のままわかるようになる</p>
+      <p class="step-desc">短い本を読み続けていると、読む力・発音・意味の理解が少しずつ育ってきます。「日本語に訳して考える」のではなく、英語を英語のまま感じられるようになってきます。<br>本からインプットされる正しい英語が蓄積されていくと、それが自然とスピーキング力にもつながります。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-left">
+      <div class="step-num s5-num">5</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <p class="step-title">多読の習慣化　―　英語で読む・学ぶ・楽しむ</p>
+      <p class="step-desc">ここまで来たら、あとは続けることが一番の力になります。でも「継続」が一番難しい。<br>英語で本を読む習慣、英語で何かを学ぶ時間。それをおうちの中に無理なく組み込んでいくお手伝いをします。</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 48px; border-top: 1px solid #e8e4dc; padding-top: 32px;">
+  <p style="font-size: 13px; font-weight: 700; color: #2c2c2a; margin-bottom: 4px;">習得の流れの一例</p>
+
+  <svg width="100%" viewBox="0 0 640 260" role="img" xmlns="http://www.w3.org/2000/svg">
+    <title>英語習得5ステップの進行グラフ</title>
+    <desc>①音を聞くと②絵本を読むが同時進行し、その後③フォニックス、④英語のまま理解、⑤多読の習慣化へと続く</desc>
+
+    <!-- 縦の区切り線（薄い） -->
+    <line x1="196" y1="8" x2="196" y2="228" stroke="#e8e4dc" stroke-width="0.5" stroke-dasharray="3 3"/>
+    <line x1="336" y1="8" x2="336" y2="228" stroke="#e8e4dc" stroke-width="0.5" stroke-dasharray="3 3"/>
+    <line x1="476" y1="8" x2="476" y2="228" stroke="#e8e4dc" stroke-width="0.5" stroke-dasharray="3 3"/>
+
+    <!-- フェーズラベル -->
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#b4b2a9" x="98" y="16" text-anchor="middle">はじめ</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#b4b2a9" x="266" y="16" text-anchor="middle">文字への興味</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#b4b2a9" x="406" y="16" text-anchor="middle">読む力がつく</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#b4b2a9" x="558" y="16" text-anchor="middle">継続・応用</text>
+
+    <!-- ① 音を聞く (teal) — 全体を通して続く -->
+    <rect x="20" y="30" width="600" height="32" rx="6" fill="#E1F5EE"/>
+    <rect x="20" y="30" width="600" height="32" rx="6" fill="none" stroke="#9FE1CB" stroke-width="0.5"/>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="12" font-weight="700" fill="#085041" x="30" y="51">① 音を聞く</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#085041" x="200" y="51">日常生活でカバー　→　ずっと続く</text>
+
+    <!-- ② 絵本を読む (purple) — ①とほぼ同時、少し遅れてスタート、全体に続く -->
+    <rect x="40" y="74" width="580" height="32" rx="6" fill="#EEEDFE"/>
+    <rect x="40" y="74" width="580" height="32" rx="6" fill="none" stroke="#AFA9EC" stroke-width="0.5"/>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="12" font-weight="700" fill="#3C3489" x="50" y="95">② 絵本を読む</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#3C3489" x="210" y="95">繰り返しで音と文字がつながる</text>
+
+    <!-- ③ フォニックス (amber) — 中盤から -->
+    <rect x="210" y="118" width="410" height="32" rx="6" fill="#FAEEDA"/>
+    <rect x="210" y="118" width="410" height="32" rx="6" fill="none" stroke="#FAC775" stroke-width="0.5"/>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="12" font-weight="700" fill="#633806" x="220" y="139">③ フォニックス</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#633806" x="355" y="139">短音 → CVC単語</text>
+
+    <!-- ④ 英語のまま理解 (blue) — やや後半から -->
+    <rect x="310" y="162" width="310" height="32" rx="6" fill="#E6F1FB"/>
+    <rect x="310" y="162" width="310" height="32" rx="6" fill="none" stroke="#85B7EB" stroke-width="0.5"/>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="12" font-weight="700" fill="#0C447C" x="320" y="183">④ 英語のまま理解</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#0C447C" x="470" y="183">読む・話すへ</text>
+
+    <!-- ⑤ 多読の習慣化 (coral) — 後半 -->
+    <rect x="400" y="206" width="220" height="32" rx="6" fill="#FAECE7"/>
+    <rect x="400" y="206" width="220" height="32" rx="6" fill="none" stroke="#F0997B" stroke-width="0.5"/>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="12" font-weight="700" fill="#712B13" x="410" y="227">⑤ 多読の習慣化</text>
+    <text font-family="'Noto Sans JP', sans-serif" font-size="11" fill="#712B13" x="540" y="227">継続</text>
+  </svg>
+
+  <p style="font-size: 11px; color: #b4b2a9; margin-top: 12px;">※ 進み方はお子さん一人ひとり違います。</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お子さんの英語、今どのステージ？</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #faf8f5;
+    color: #2c2c2a;
+    padding: 40px 20px 60px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: #c4714a;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: #5f5e5a;
+    line-height: 1.8;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e8e4dc;
+  }
+
+  .stage {
+    background: #fff;
+    border: 1px solid #e8e4dc;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .stage-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .stage-head-text { flex: 1; }
+
+  .stage-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    margin-bottom: 2px;
+  }
+
+  .stage-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2a;
+  }
+
+  .stage-chevron {
+    font-size: 18px;
+    color: #b4b2a9;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+
+  .stage.open .stage-chevron { transform: rotate(180deg); }
+
+  .stage-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid #f0ece4;
+  }
+
+  .stage.open .stage-body { display: block; }
+
+  .skill-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: #b4b2a9;
+    margin: 16px 0 8px;
+  }
+
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #5f5e5a;
+    line-height: 1.6;
+    background: #faf8f5;
+    border: 1px solid #e8e4dc;
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .checklist li.checked {
+    background: var(--check-bg);
+    border-color: var(--check-border);
+    color: var(--check-text);
+  }
+
+  .check-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid #d3d1c7;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s;
+  }
+
+  .checklist li.checked .check-icon {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checklist li.checked .check-icon::after {
+    content: '';
+    width: 8px;
+    height: 4px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: block;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #888780;
+    line-height: 1.7;
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #faf8f5;
+    border-radius: 8px;
+    font-style: italic;
+  }
+
+  .goal-box {
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 14px;
+  }
+
+  .goal-box .goal-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    margin-bottom: 6px;
+  }
+
+  .goal-box p {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .lesson-box {
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 10px;
+  }
+
+  .lesson-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+
+  .lesson-box p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #2c2c2a;
+  }
+
+  .cta-wrap {
+    margin-top: 32px;
+    background: #fff;
+    border: 1px solid #e8e4dc;
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .cta-wrap p {
+    font-size: 13px;
+    color: #5f5e5a;
+    line-height: 1.85;
+    margin-bottom: 16px;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: #c4714a;
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 32px;
+    border-radius: 40px;
+    text-decoration: none;
+    letter-spacing: .04em;
+  }
+
+  .cta-sub {
+    font-size: 11px;
+    color: #b4b2a9;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  /* カラーテーマ */
+  .s1 { --accent:#1D9E75; --light:#E1F5EE; --mid:#085041; --check-bg:#f0faf6; --check-border:#9FE1CB; --check-text:#085041; --goal-bg:#f0faf6; --goal-text:#085041; --lesson-bg:#e6f7f1; --tag-bg:#9FE1CB; --tag-text:#085041; }
+  .s2 { --accent:#7F77DD; --light:#EEEDFE; --mid:#3C3489; --check-bg:#f4f3fe; --check-border:#AFA9EC; --check-text:#26215C; --goal-bg:#f4f3fe; --goal-text:#3C3489; --lesson-bg:#eceafe; --tag-bg:#CECBF6; --tag-text:#26215C; }
+  .s3 { --accent:#BA7517; --light:#FAEEDA; --mid:#633806; --check-bg:#fdf6e8; --check-border:#FAC775; --check-text:#412402; --goal-bg:#fdf6e8; --goal-text:#633806; --lesson-bg:#faefd6; --tag-bg:#FAC775; --tag-text:#412402; }
+  .s4 { --accent:#185FA5; --light:#E6F1FB; --mid:#0C447C; --check-bg:#ebf4fd; --check-border:#85B7EB; --check-text:#042C53; --goal-bg:#ebf4fd; --goal-text:#0C447C; --lesson-bg:#ddeefa; --tag-bg:#85B7EB; --tag-text:#042C53; }
+
+  .stage-num { background: var(--light); color: var(--mid); }
+  .stage-label { color: var(--accent); }
+  .goal-box { background: var(--goal-bg); color: var(--goal-text); }
+  .goal-box .goal-label { color: var(--accent); }
+  .lesson-box { background: var(--lesson-bg); }
+  .lesson-tag { background: var(--tag-bg); color: var(--tag-text); }
+</style>
+</head>
+<body>
+
+<style>
+  #pw-overlay {
+    position: fixed; inset: 0;
+    background: #faf8f5;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  #pw-box {
+    background: #fff;
+    border: 1px solid #e8e4dc;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+  }
+  #pw-box h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+  }
+  #pw-box p {
+    font-size: 12px;
+    color: #888780;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  #pw-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #e8e4dc;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-bottom: 12px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  #pw-input:focus { border-color: #c4714a; }
+  #pw-btn {
+    width: 100%;
+    background: #c4714a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
+  #pw-error {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 10px;
+    display: none;
+  }
+</style>
+
+<div id="pw-overlay">
+  <div id="pw-box">
+    <h2>🔒 資料を見るには</h2>
+    <p>パスワードを入力してください</p>
+    <input type="password" id="pw-input" placeholder="パスワード" onkeydown="if(event.key==='Enter')verify()">
+    <button id="pw-btn" onclick="verify()">確認する</button>
+    <p id="pw-error">パスワードが違います</p>
+  </div>
+</div>
+
+<script>
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function verify() {
+  const val = document.getElementById('pw-input').value;
+  const hash = await sha256(val);
+  if (hash === '54f63b2a758ff8ebd46256c7d50120274ab51f24cc3a950143d7aa5638117d95') {
+    document.getElementById('pw-overlay').style.display = 'none';
+    sessionStorage.setItem('auth', '1');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+if (sessionStorage.getItem('auth') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('pw-overlay');
+    if (el) el.style.display = 'none';
+  });
+}
+</script>
+
+
+<p class="page-eyebrow">STAGE CHECK</p>
+<h1>お子さんの英語、今どのステージ？</h1>
+<p class="page-sub">英語習得の見通しがたてやすいよう、ステージを表示しています。当てはまると思う項目をタップしながら、お子さんの今の様子と照らし合わせてみてください。いくつかのステージにまたがっていても大丈夫です。<br><br>まだ英語に拒否感が強いお子さんの場合は、レッスンを通じてステージ1を一緒に目指すところからはじめます。どの段階からでも、お気軽にご相談ください。</p>
+
+
+<!-- STAGE 1 -->
+<div class="stage s1" id="s1">
+  <div class="stage-header" onclick="toggle('s1')">
+    <div class="stage-num">1</div>
+    <div class="stage-head-text">
+      <div class="stage-label">ステージ 1</div>
+      <div class="stage-title">英語の音に慣れている・絵本を楽しめる</div>
+    </div>
+    <div class="stage-chevron">&#8964;</div>
+  </div>
+  <div class="stage-body">
+
+    <p class="skill-label">きく・はなす</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>英語の歌や動画を楽しんで見ている</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>よく聞くフレーズを口ずさむことがある</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>英語を聞いてもリラックスして受け入れている</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>簡単な指示（"sit down" "come here" など）を理解している</li>
+    </ul>
+
+    <p class="skill-label">よむ・かく</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>読み聞かせの絵本を最後まで聞いていられる</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>絵を手がかりに内容をなんとなく理解している</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>アルファベットの文字に少し興味を示している</li>
+    </ul>
+
+
+    <div class="goal-box">
+      <p class="goal-label">つぎのゴール</p>
+      <p>絵本を繰り返し読む習慣をつくる。英語の音とリズムをたくさん体に入れる。</p>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-tag">レッスンでできること</div>
+      <p>お子さんが英語を楽しいと感じられる入口を一緒に作ります。絵本選びや、おうちでの習慣づくりもサポートします。</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- STAGE 2 -->
+<div class="stage s2" id="s2">
+  <div class="stage-header" onclick="toggle('s2')">
+    <div class="stage-num">2</div>
+    <div class="stage-head-text">
+      <div class="stage-label">ステージ 2</div>
+      <div class="stage-title">少しずつ話せる・文字に興味が出てきた</div>
+    </div>
+    <div class="stage-chevron">&#8964;</div>
+  </div>
+  <div class="stage-body">
+
+    <p class="skill-label">きく・はなす</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>知っている単語やフレーズを使って話そうとする</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>英語で話しかけられたとき、なんとなく返せることがある</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>友だちや先生の英語をだいたい理解できている様子</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>日本語と英語を混ぜながら表現しようとしている</li>
+    </ul>
+
+    <p class="skill-label">よむ・かく</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>繰り返し見てきた単語を目で追うようになってきた</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>知っている単語を指さしたり声に出したりする</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>アルファベットを書こうとすることがある</li>
+    </ul>
+
+
+    <div class="goal-box">
+      <p class="goal-label">つぎのゴール</p>
+      <p>フォニックスで「音と文字のルール」を学びはじめる。短い単語を自分で読めるようになる。</p>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-tag">レッスンでできること</div>
+      <p>話す自信をさらに育てながら、フォニックス導入のタイミングを一緒に見極めます。</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- STAGE 3 -->
+<div class="stage s3" id="s3">
+  <div class="stage-header" onclick="toggle('s3')">
+    <div class="stage-num">3</div>
+    <div class="stage-head-text">
+      <div class="stage-label">ステージ 3</div>
+      <div class="stage-title">フォニックス学習中・リーダーズを読んでいる</div>
+    </div>
+    <div class="stage-chevron">&#8964;</div>
+  </div>
+  <div class="stage-body">
+
+    <p class="skill-label">きく・はなす</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>英語で会話のキャッチボールができるようになってきた</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>自分の気持ちや出来事を英語で伝えようとする</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>知らない単語を聞いても文脈で理解しようとする</li>
+    </ul>
+
+    <p class="skill-label">よむ・かく</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>短い音（a・t・s など）を覚えてきた</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>3文字の単語（CAT・SIT など）を自分で読もうとしている</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>やさしいリーダーズ絵本を読んでいる</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>知っている単語が増えてきた実感がある</li>
+    </ul>
+
+
+    <div class="goal-box">
+      <p class="goal-label">つぎのゴール</p>
+      <p>リーダーズのレベルを少しずつ上げながら、英語を英語のまま理解する力を育てる。</p>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-tag">レッスンでできること</div>
+      <p>今のレベルに合ったリーダーズ選びと、フォニックスの定着をサポート。話す力と読む力を並行して伸ばします。</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- STAGE 4 -->
+<div class="stage s4" id="s4">
+  <div class="stage-header" onclick="toggle('s4')">
+    <div class="stage-num">4</div>
+    <div class="stage-head-text">
+      <div class="stage-label">ステージ 4</div>
+      <div class="stage-title">ある程度話せる・読む力をもっと広げたい</div>
+    </div>
+    <div class="stage-chevron">&#8964;</div>
+  </div>
+  <div class="stage-body">
+
+    <p class="skill-label">きく・はなす</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>英語で自然に会話できる場面が増えてきた</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>英語で冗談を言ったり、感情を表現したりできる</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>英語のテレビや動画を字幕なしで楽しめる</li>
+    </ul>
+
+    <p class="skill-label">よむ・かく</p>
+    <ul class="checklist">
+      <li onclick="chk(this)"><span class="check-icon"></span>短い絵本を自分でスラスラ読める</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>英語を英語のまま理解できる場面が増えてきた</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>もっとむずかしい本や長い話にチャレンジしたい</li>
+      <li onclick="chk(this)"><span class="check-icon"></span>簡単な文章を英語で書こうとすることがある</li>
+    </ul>
+
+
+    <div class="goal-box">
+      <p class="goal-label">つぎのゴール</p>
+      <p>読む量・レベルをどんどん広げる。本からのインプットが蓄積されることで、話す力にも自然とつながっていく。</p>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-tag">レッスンでできること</div>
+      <p>次のレベルの本選びと多読継続のサポート。帰国後も英語が残るよう、読む習慣を一緒に作ります。</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <p>「どこから始めればいいのかな」と思ったら、<br>まずは気軽にお話しましょう。<br>お子さんの今の様子を聞かせてもらえれば、<br>一緒に考えます。</p>
+  <a class="cta-btn" href="https://line.me/R/ti/p/@842zrmls" target="_blank">相談を予約する</a>
+  <p class="cta-sub">気軽に話しかけてくださいね</p>
+</div>
+
+<script>
+function toggle(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+function chk(el) {
+  el.classList.toggle('checked');
+}
+</script>
+</body>
+</html>
